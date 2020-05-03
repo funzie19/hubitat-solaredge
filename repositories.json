@@ -1,0 +1,13 @@
+{
+   "author": "Joseph Kregloh",
+   "gitHubUrl": "https://github.com/funzie19/hubitat-solaredge",
+   "payPalUrl": "https://paypal.me/funzie19?locale.x=en_US",
+   "packages": [
+      {
+   		"name": "Solaredge Monitor",
+   		"category": "Integration",
+   		"location": "https://raw.githubusercontent.com/funzie19/hubitat-solaredge/master/packageManifest.json",
+   		"description": "Retrieve inverter metrics from the Solaredge API to use in dashboards or as attributes for rules. Information available is current power flow, generation statistics, and current generation/consumtion metrics."
+   	}
+   ]
+}

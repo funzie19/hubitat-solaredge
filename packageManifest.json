@@ -1,0 +1,21 @@
+{
+	"packageName": "Solaredge Monitor",
+	"minimumHEVersion": "2.1.9",
+	"author": "Joseph Kregloh",
+	"dateReleased": "2020-05-01",
+	"documentationLink": "https://github.com/funzie19/hubitat-solaredge/blob/master/README.md",
+	"communityLink": "https://community.hubitat.com/t/release-solaredge-monitoring-device-driver/38743",
+	"apps" : [
+	],
+	"drivers" : [
+    {
+			"id" : "9a3c6e8a-01e6-4091-b5a6-6a1015d1cd3c",
+			"name": "Solaredge Monitor",
+			"namespace": "funzie19.solaredge",
+			"location": "https://raw.githubusercontent.com/funzie19/hubitat-solaredge/master/solaredge-driver.groovy",
+			"required": true,
+			"oauth": false,
+			"version": "1.1.0"
+		}
+	]
+}

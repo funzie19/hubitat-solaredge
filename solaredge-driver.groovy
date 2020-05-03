@@ -1,6 +1,6 @@
 /***********************************************************************************************************************
  *
- *  This is a Hubitat device driver which will connect to the Solaredge monitoring API and retrive inverter and
+ *  This is a Hubitat device driver which will connect to the Solaredge monitoring API and retrieve inverter and
  *  site overview data.
  *
  *  License:
@@ -13,7 +13,7 @@
  *
  ***********************************************************************************************************************/
 
-private version() { return "1.1.0" }
+private version() { return "1.1.1" }
 
 metadata {
     definition(
@@ -439,11 +439,13 @@ def queryOverviewEndpoint() {
         log.debug "Response: ${r.data}"
       }
 
-      sendEvent(name: "power", value: r.data.overview.currentPower.power)
-      sendEvent(name: "last_day", value: r.data.overview.lastDayData.energy)
-      sendEvent(name: "last_month", value: r.data.overview.lastMonthData.energy)
-      sendEvent(name: "last_year", value: r.data.overview.lastYearData.energy)
-      sendEvent(name: "lifetime", value: r.data.overview.lifeTimeData.energy)
+      delayBetween([
+        sendEvent(name: "power", value: r.data.overview.currentPower.power),
+        sendEvent(name: "last_day", value: r.data.overview.lastDayData.energy),
+        sendEvent(name: "last_month", value: r.data.overview.lastMonthData.energy),
+        sendEvent(name: "last_year", value: r.data.overview.lastYearData.energy),
+        sendEvent(name: "lifetime", value: r.data.overview.lifeTimeData.energy)
+      ])
     }
   } catch (Exception e) {
       log.error "Exception"
@@ -490,10 +492,18 @@ def querySitePowerFlowEndpoint() {
         log.debug "Response: ${r.data}"
       }
 
-      sendEvent(name: "grid_power", value: r.data.siteCurrentPowerFlow.GRID.currentPower + " " + r.data.siteCurrentPowerFlow.unit)
-      sendEvent(name: "load_power", value: r.data.siteCurrentPowerFlow.LOAD.currentPower + " " + r.data.siteCurrentPowerFlow.unit)
-      sendEvent(name: "pv_power", value: r.data.siteCurrentPowerFlow.PV.currentPower + " " + r.data.siteCurrentPowerFlow.unit)
+      delayBetween([
+        sendEvent(name: "grid_power", value: r.data.siteCurrentPowerFlow.GRID.currentPower + " " + r.data.siteCurrentPowerFlow.unit),
+        sendEvent(name: "load_power", value: r.data.siteCurrentPowerFlow.LOAD.currentPower + " " + r.data.siteCurrentPowerFlow.unit),
+        sendEvent(name: "pv_power", value: r.data.siteCurrentPowerFlow.PV.currentPower + " " + r.data.siteCurrentPowerFlow.unit)
+      ])
 
+      if (r.data.siteCurrentPowerFlow.PV.currentPower - r.data.siteCurrentPowerFlow.LOAD.currentPower > 0) {
+          state.flow_direction = "green"
+      }
+      else {
+        state.flow_direction = "red"
+      }
     }
   } catch (Exception e) {
       log.error "Exception"
@@ -580,7 +590,7 @@ def updateTiles() {
   def power_flow_tile = "<div style='font-size: 15px;'><table width='100%'>"
   if (settings.power_flow_title) power_flow_tile += "<tr><td style='text-align: center; width: 100%'>" + settings.power_flow_title + "</td></tr>"
   if (device.currentValue("pv_power")) power_flow_tile += "<tr><td style='text-align: left; width: 100%'>" + "Solar: <span style='color: green;'>" + device.currentValue("pv_power") + "</span></td></tr>"
-  if (device.currentValue("grid_power")) power_flow_tile += "<tr><td style='text-align: left; width: 100%'>" + "Grid: <span style='color: red;'>" + device.currentValue("grid_power") + "</span></td></tr>"
+  if (device.currentValue("grid_power")) power_flow_tile += "<tr><td style='text-align: left; width: 100%'>" + "Grid: <span style='color: " + state.flow_direction + ";'>" + device.currentValue("grid_power") + "</span></td></tr>"
   if (device.currentValue("load_power")) power_flow_tile += "<tr><td style='text-align: left; width: 100%'>" + "Usage: <span style='color: red;'>" + device.currentValue("load_power") + "</span></td></tr>"
   if (settings.display_last_updated == true) power_flow_tile += "<tr><td style='text-align: center; width: 100%'><br />Last Updated: " + state.last_updated + "</td></tr>"
   power_flow_tile += "</table></div>"
