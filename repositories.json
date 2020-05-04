@@ -5,7 +5,7 @@
    "packages": [
       {
    		"name": "Solaredge Monitor",
-   		"category": "Integration",
+   		"category": "Integrations",
    		"location": "https://raw.githubusercontent.com/funzie19/hubitat-solaredge/master/packageManifest.json",
    		"description": "Retrieve inverter metrics from the Solaredge API to use in dashboards or as attributes for rules. Information available is current power flow, generation statistics, and current generation/consumtion metrics."
    	}
