@@ -601,8 +601,7 @@ def updateTiles() {
 private formatEnergy(energy)
 {
   if (energy < 1000) return energy + " Wh"
-
-  if (energy < 1000000) return energy/1000 + " kWh"
-
-  return energy/1000/1000 + " MWh"
+  if (energy < 1000000) return Math.round((double) (energy/1000) * 100) / 100 + " kWh"
+  
+  return Math.round((double) (energy/1000/1000) * 100) / 100  + " MWh"
 }
