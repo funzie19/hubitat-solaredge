@@ -498,7 +498,7 @@ def querySitePowerFlowEndpoint() {
         sendEvent(name: "pv_power", value: r.data.siteCurrentPowerFlow.PV.currentPower + " " + r.data.siteCurrentPowerFlow.unit)
       ])
 
-      if (r.data.siteCurrentPowerFlow.PV.currentPower - r.data.siteCurrentPowerFlow.LOAD.currentPower > 0) {
+      if (r.data.siteCurrentPowerFlow.PV.currentPower - r.data.siteCurrentPowerFlow.LOAD.currentPower >= 0) {
           state.flow_direction = "green"
       }
       else {
@@ -535,12 +535,7 @@ def updateTiles() {
   if (debug) log.debug "Updating tile information."
 
   def production = device.currentValue("production")
-  def production_status = "red"
-
-  if (device.currentValue("production") < device.currentValue("consumption"))
-  {
-      production_status = "green"
-  }
+  def usage_color = "red"
 
   def energy_tile = "<div style='font-size: 13px;'><table width='100%'>"
   if (settings.energy_title) energy_tile += "<tr><td style='text-align: center; width: 100%'>" + settings.energy_title + "</td></tr>"
@@ -591,7 +586,14 @@ def updateTiles() {
   if (settings.power_flow_title) power_flow_tile += "<tr><td style='text-align: center; width: 100%'>" + settings.power_flow_title + "</td></tr>"
   if (device.currentValue("pv_power")) power_flow_tile += "<tr><td style='text-align: left; width: 100%'>" + "Solar: <span style='color: green;'>" + device.currentValue("pv_power") + "</span></td></tr>"
   if (device.currentValue("grid_power")) power_flow_tile += "<tr><td style='text-align: left; width: 100%'>" + "Grid: <span style='color: " + state.flow_direction + ";'>" + device.currentValue("grid_power") + "</span></td></tr>"
-  if (device.currentValue("load_power")) power_flow_tile += "<tr><td style='text-align: left; width: 100%'>" + "Usage: <span style='color: red;'>" + device.currentValue("load_power") + "</span></td></tr>"
+
+  if (device.currentValue("grid_power") == 0 || device.currentValue("load_power") > device.currentValue("grid_power"))
+  {
+    usage_color = "orange"
+  }
+
+  if (device.currentValue("load_power")) power_flow_tile += "<tr><td style='text-align: left; width: 100%'>" + "Usage: <span style='color: " + usage_color + ";'>" + device.currentValue("load_power") + "</span></td></tr>"
+
   if (settings.display_last_updated == true) power_flow_tile += "<tr><td style='text-align: center; width: 100%'><br />Last Updated: " + state.last_updated + "</td></tr>"
   power_flow_tile += "</table></div>"
 
@@ -601,7 +603,8 @@ def updateTiles() {
 private formatEnergy(energy)
 {
   if (energy < 1000) return energy + " Wh"
-  if (energy < 1000000) return Math.round((double) (energy/1000) * 100) / 100 + " kWh"
-  
-  return Math.round((double) (energy/1000/1000) * 100) / 100  + " MWh"
+
+  if (energy < 1000000) return energy/1000 + " kWh"
+
+  return energy/1000/1000 + " MWh"
 }
