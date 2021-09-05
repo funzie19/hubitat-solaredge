@@ -13,7 +13,7 @@
  *
  ***********************************************************************************************************************/
 
-private version() { return "1.1.1" }
+private version() { return "1.1.2" }
 
 metadata {
     definition(
@@ -275,8 +275,6 @@ def refresh() {
   querySitePowerFlowEndpoint()
 
   updateTiles()
-
-  state.last_updated = new Date().format("YYYY-MM-dd HH:mm:ss")
 }
 
 def updated() {
@@ -417,6 +415,8 @@ def queryEnergyEndpoint() {
       }
     }
   }
+
+  updateTiles()
 }
 
 def queryOverviewEndpoint() {
@@ -470,6 +470,8 @@ def queryOverviewEndpoint() {
       }
     }
   }
+
+  updateTiles()
 }
 
 def querySitePowerFlowEndpoint() {
@@ -528,12 +530,16 @@ def querySitePowerFlowEndpoint() {
       }
     }
   }
+
+  updateTiles()
 }
 
 def updateTiles() {
 
   if (debug) log.debug "Updating tile information."
 
+  state.last_updated = new Date().format("YYYY-MM-dd HH:mm:ss")
+  
   def production = device.currentValue("production")
   def production_status = "red"
 
