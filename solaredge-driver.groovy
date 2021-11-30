@@ -493,7 +493,10 @@ def querySitePowerFlowEndpoint() {
         log.debug "Content Type: ${r.getContentType()}"
         log.debug "Response: ${r.data}"
       }
-
+        if (!r.data.siteCurrentPowerFlow) {
+            log.warn "currentPowerFlow not supported for this site"
+        }
+        else {
       delayBetween([
         sendEvent(name: "grid_power", value: r.data.siteCurrentPowerFlow.GRID.currentPower + " " + r.data.siteCurrentPowerFlow.unit),
         sendEvent(name: "load_power", value: r.data.siteCurrentPowerFlow.LOAD.currentPower + " " + r.data.siteCurrentPowerFlow.unit),
@@ -506,9 +509,10 @@ def querySitePowerFlowEndpoint() {
       else {
         state.flow_direction = "red"
       }
+        }
     }
-  } catch (Exception e) {
-      log.error "Exception"
+  } catch (groovyx.net.http.HttpResponseException e) {
+      log.error "Exception: ${e.toString()}"
 
       if(e.getStatusCode()) {
         switch(e.getStatusCode()) {
@@ -522,13 +526,15 @@ def querySitePowerFlowEndpoint() {
                 log.error "429 - Too many requests"
                 break
             default:
-                log.error "Unkown Error"
+                log.error "Unknown Error"
                 log.error "httpGet status code: e.getStatusCode ${e.getStatusCode()}"
                 log.error "httpGet message: e.message : ${e.message}"
                 log.error "httpGet full stack: e : ${e}"
                 break
+        }
       }
-    }
+  } catch (Exception e) {
+      log.error "Unhandled exception:  ${e}"
   }
 
   updateTiles()
