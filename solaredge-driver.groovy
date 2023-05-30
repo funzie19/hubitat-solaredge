@@ -1,7 +1,7 @@
 /***********************************************************************************************************************
  *
- *  This is a Hubitat device driver which will connect to the Solaredge monitoring API and retrieve inverter and
- *  site overview data.
+ *  This is a Hubitat device driver which will connect to the Solaredge monitoring API and retrieve inverter, battery
+ *  and site overview data.
  *
  *  License:
  *  This program falls under the GNU GENERAL PUBLIC LICENSE Version 3.
@@ -12,8 +12,7 @@
  *  Changelog: https://github.com/funzie19/hubitat-solaredge/blob/master/CHANGELOG.md
  *
  ***********************************************************************************************************************/
-
-private version() { return "1.1.2" }
+private version() { return "1.2.0" }
 
 metadata {
     definition(
@@ -24,6 +23,7 @@ metadata {
         description: "Driver to query the Solaredge API endpoint and return data related to solar production and consumption for a given site."
     ) {
       capability "Power Meter"
+      capability "Battery"
       capability "Refresh"
       command "updateTiles"
       command "getEnergy"
@@ -32,10 +32,10 @@ metadata {
       command "clearData"
 
       attribute "production", "number"
-    	attribute "consumption", "number"
+      attribute "consumption", "number"
       attribute "self_consumption", "number"
-    	attribute "feed_in", "number"
-    	attribute "purchased", "number"
+      attribute "feed_in", "number"
+      attribute "purchased", "number"
       attribute "last_day", "number"
       attribute "last_month", "number"
       attribute "last_year", "number"
@@ -43,6 +43,14 @@ metadata {
       attribute "grid_power", "string"
       attribute "load_power", "string"
       attribute "pv_power", "string"
+      
+      // Battery Storage Attributes
+      attribute "storage_status", "string"  // Idle, Charging, Discharging
+      attribute "storage_power", "string"   // Power either coming in (charging) or going out (Discharging), value is positive regardless of direction
+      attribute "storage_charge", "string"  // 51.0 for 51% charge
+      
+      attribute "battery", "number"         // Duplication of storage_charge attribute to align to Battery capability
+        
       attribute "energy_tile", "string"
       attribute "overview_tile", "string"
       attribute "power_flow_tile", "string"
@@ -500,7 +508,19 @@ def querySitePowerFlowEndpoint() {
         sendEvent(name: "pv_power", value: r.data.siteCurrentPowerFlow.PV.currentPower + " " + r.data.siteCurrentPowerFlow.unit)
       ])
 
-      if (r.data.siteCurrentPowerFlow.PV.currentPower - r.data.siteCurrentPowerFlow.LOAD.currentPower > 0) {
+      def storagePower = 0;
+      if(r.data.siteCurrentPowerFlow.STORAGE) {
+        delayBetween([
+          sendEvent(name: "storage_power", value: r.data.siteCurrentPowerFlow.STORAGE.currentPower + " " + r.data.siteCurrentPowerFlow.unit),
+          sendEvent(name: "storage_charge", value: r.data.siteCurrentPowerFlow.STORAGE.chargeLevel + "%"),
+          sendEvent(name: "battery", value: r.data.siteCurrentPowerFlow.STORAGE.chargeLevel + "%"),
+          sendEvent(name: "storage_status", value: r.data.siteCurrentPowerFlow.STORAGE.status)
+        ]);
+        storagePower = r.data.siteCurrentPowerFlow.STORAGE.currentPower;
+      }      
+      
+        
+      if (r.data.siteCurrentPowerFlow.PV.currentPower + storagePower - r.data.siteCurrentPowerFlow.LOAD.currentPower > 0) {
           state.flow_direction = "green"
       }
       else {
@@ -508,7 +528,7 @@ def querySitePowerFlowEndpoint() {
       }
     }
   } catch (Exception e) {
-      log.error "Exception"
+      log.error "Exception" + e
 
       if(e.getStatusCode()) {
         switch(e.getStatusCode()) {
@@ -597,6 +617,7 @@ def updateTiles() {
   if (settings.power_flow_title) power_flow_tile += "<tr><td style='text-align: center; width: 100%'>" + settings.power_flow_title + "</td></tr>"
   if (device.currentValue("pv_power")) power_flow_tile += "<tr><td style='text-align: left; width: 100%'>" + "Solar: <span style='color: green;'>" + device.currentValue("pv_power") + "</span></td></tr>"
   if (device.currentValue("grid_power")) power_flow_tile += "<tr><td style='text-align: left; width: 100%'>" + "Grid: <span style='color: " + state.flow_direction + ";'>" + device.currentValue("grid_power") + "</span></td></tr>"
+  if (device.currentValue("storage_power")) power_flow_tile += "<tr><td style='text-align: left; width: 100%'>" + "Battery: <span style='color: green;'>" + device.currentValue("storage_power") + "</span></td></tr>"
   if (device.currentValue("load_power")) power_flow_tile += "<tr><td style='text-align: left; width: 100%'>" + "Usage: <span style='color: red;'>" + device.currentValue("load_power") + "</span></td></tr>"
   if (settings.display_last_updated == true) power_flow_tile += "<tr><td style='text-align: center; width: 100%'><br />Last Updated: " + state.last_updated + "</td></tr>"
   power_flow_tile += "</table></div>"
