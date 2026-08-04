@@ -12,7 +12,7 @@
  *  Changelog: https://github.com/funzie19/hubitat-solaredge/blob/master/CHANGELOG.md
  *
  ***********************************************************************************************************************/
-private version() { return "1.2.0" }
+private version() { return "1.2.1" }
 
 metadata {
     definition(
@@ -324,25 +324,24 @@ def clearData()
 {
   if (debug) log.debug "Deleting all metrics."
 
-  delayBetween([
-    sendEvent(name: "feed_in", value: 0),
-    sendEvent(name: "self_consumption", value: 0),
-    sendEvent(name: "purchased", value: 0),
-    sendEvent(name: "consumption", value: 0),
-    sendEvent(name: "production", value: 0),
-    sendEvent(name: "power", value: 0),
-    sendEvent(name: "last_day", value: 0),
-    sendEvent(name: "last_month", value: 0),
-    sendEvent(name: "last_year", value: 0),
-    sendEvent(name: "grid_power", value: "0 kW"),
-    sendEvent(name: "load_power", value: "0 kW"),
-    sendEvent(name: "pv_power", value: "0 kW"),
-    sendEvent(name: "energy_tile", value: ""),
-    sendEvent(name: "overview_tile", value: ""),
-    sendEvent(name: "power_flow_tile", value: ""),
-    sendEvent(name: "lifetime", value: 0)])
+  sendEvent(name: "feed_in", value: 0)
+  sendEvent(name: "self_consumption", value: 0)
+  sendEvent(name: "purchased", value: 0)
+  sendEvent(name: "consumption", value: 0)
+  sendEvent(name: "production", value: 0)
+  sendEvent(name: "power", value: 0)
+  sendEvent(name: "last_day", value: 0)
+  sendEvent(name: "last_month", value: 0)
+  sendEvent(name: "last_year", value: 0)
+  sendEvent(name: "grid_power", value: "0 kW")
+  sendEvent(name: "load_power", value: "0 kW")
+  sendEvent(name: "pv_power", value: "0 kW")
+  sendEvent(name: "energy_tile", value: "")
+  sendEvent(name: "overview_tile", value: "")
+  sendEvent(name: "power_flow_tile", value: "")
+  sendEvent(name: "lifetime", value: 0)
 
-    updateTiles()
+  updateTiles()
 }
 
 def queryEnergyEndpoint() {
@@ -447,16 +446,14 @@ def queryOverviewEndpoint() {
         log.debug "Response: ${r.data}"
       }
 
-      delayBetween([
-        sendEvent(name: "power", value: r.data.overview.currentPower.power),
-        sendEvent(name: "last_day", value: r.data.overview.lastDayData.energy),
-        sendEvent(name: "last_month", value: r.data.overview.lastMonthData.energy),
-        sendEvent(name: "last_year", value: r.data.overview.lastYearData.energy),
-        sendEvent(name: "lifetime", value: r.data.overview.lifeTimeData.energy)
-      ])
+      sendEvent(name: "power", value: r.data.overview.currentPower.power)
+      sendEvent(name: "last_day", value: r.data.overview.lastDayData.energy)
+      sendEvent(name: "last_month", value: r.data.overview.lastMonthData.energy)
+      sendEvent(name: "last_year", value: r.data.overview.lastYearData.energy)
+      sendEvent(name: "lifetime", value: r.data.overview.lifeTimeData.energy)
     }
   } catch (Exception e) {
-      log.error "Exception"
+      log.error "Exception: " + e
 
       if(e.getStatusCode()) {
         switch(e.getStatusCode()) {
@@ -502,33 +499,28 @@ def querySitePowerFlowEndpoint() {
         log.debug "Response: ${r.data}"
       }
 
-      delayBetween([
-        sendEvent(name: "grid_power", value: r.data.siteCurrentPowerFlow.GRID.currentPower + " " + r.data.siteCurrentPowerFlow.unit),
-        sendEvent(name: "load_power", value: r.data.siteCurrentPowerFlow.LOAD.currentPower + " " + r.data.siteCurrentPowerFlow.unit),
-        sendEvent(name: "pv_power", value: r.data.siteCurrentPowerFlow.PV.currentPower + " " + r.data.siteCurrentPowerFlow.unit)
-      ])
+      if (r.data.siteCurrentPowerFlow.GRID.currentPower)
+        sendEvent(name: "grid_power", value: r.data.siteCurrentPowerFlow.GRID.currentPower + " " + r.data.siteCurrentPowerFlow.unit)
+      if (r.data.siteCurrentPowerFlow.LOAD.currentPower)
+        sendEvent(name: "load_power", value: r.data.siteCurrentPowerFlow.LOAD.currentPower + " " + r.data.siteCurrentPowerFlow.unit)
+      sendEvent(name: "pv_power", value: r.data.siteCurrentPowerFlow.PV.currentPower + " " + r.data.siteCurrentPowerFlow.unit)
 
       def storagePower = 0;
+      state.flow_direction = "red"
       if(r.data.siteCurrentPowerFlow.STORAGE) {
-        delayBetween([
-          sendEvent(name: "storage_power", value: r.data.siteCurrentPowerFlow.STORAGE.currentPower + " " + r.data.siteCurrentPowerFlow.unit),
-          sendEvent(name: "storage_charge", value: r.data.siteCurrentPowerFlow.STORAGE.chargeLevel + "%"),
-          sendEvent(name: "battery", value: r.data.siteCurrentPowerFlow.STORAGE.chargeLevel + "%"),
-          sendEvent(name: "storage_status", value: r.data.siteCurrentPowerFlow.STORAGE.status)
-        ]);
+        sendEvent(name: "storage_power", value: r.data.siteCurrentPowerFlow.STORAGE.currentPower + " " + r.data.siteCurrentPowerFlow.unit)
+        sendEvent(name: "storage_charge", value: r.data.siteCurrentPowerFlow.STORAGE.chargeLevel + "%")
+        sendEvent(name: "battery", value: r.data.siteCurrentPowerFlow.STORAGE.chargeLevel + "%")
+        sendEvent(name: "storage_status", value: r.data.siteCurrentPowerFlow.STORAGE.status)
         storagePower = r.data.siteCurrentPowerFlow.STORAGE.currentPower;
-      }      
-      
-        
-      if (r.data.siteCurrentPowerFlow.PV.currentPower + storagePower - r.data.siteCurrentPowerFlow.LOAD.currentPower > 0) {
+
+        if (r.data.siteCurrentPowerFlow.PV.currentPower + storagePower - r.data.siteCurrentPowerFlow.LOAD.currentPower > 0) {
           state.flow_direction = "green"
-      }
-      else {
-        state.flow_direction = "red"
-      }
+        }
+      }      
     }
   } catch (Exception e) {
-      log.error "Exception" + e
+      log.error "Exception: " + e
 
       if(e.getStatusCode()) {
         switch(e.getStatusCode()) {
