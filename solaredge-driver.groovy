@@ -12,7 +12,7 @@
  *  Changelog: https://github.com/funzie19/hubitat-solaredge/blob/master/CHANGELOG.md
  *
  ***********************************************************************************************************************/
-private version() { return "1.2.0" }
+private version() { return "1.2.1" }
 
 metadata {
     definition(
@@ -43,211 +43,73 @@ metadata {
       attribute "grid_power", "string"
       attribute "load_power", "string"
       attribute "pv_power", "string"
-      
+
       // Battery Storage Attributes
       attribute "storage_status", "string"  // Idle, Charging, Discharging
-      attribute "storage_power", "string"   // Power either coming in (charging) or going out (Discharging), value is positive regardless of direction
+      attribute "storage_power", "string"   // Power either coming in (charging) or going out (discharging), value is positive regardless of direction
       attribute "storage_charge", "string"  // 51.0 for 51% charge
-      
+
       attribute "battery", "number"         // Duplication of storage_charge attribute to align to Battery capability
-        
+
       attribute "energy_tile", "string"
       attribute "overview_tile", "string"
       attribute "power_flow_tile", "string"
     }
 
     preferences {
-	     section("Configure Solaredge API connection parameters") {
+        section("Configure Solaredge API connection parameters") {
           input("site_id", "number", title: "Site Id", description: "Site Id to monitor.", required: true)
           input("api_key", "text", title: "API Key", description: "API key for given site id. This key is generated using installer level permissions. Ask installer to generate key or setup as sub-account with the correct permissions. Or sign up as an installer and take ownership of the inverter.", required: true)
           input("url", "text", title: "Solaredge Monitor API URL", description: "Endpoint URL for Solaredge Monitoring API.", required: true, defaultValue: "https://monitoringapi.solaredge.com")
 
           input("energy_refresh_interval", "enum", title: "How often to refresh the energy data", options: [
             255:"Do NOT update",
-            1:"1 Minute",
-            2:"2 Minutes",
-            3:"3 Minutes",
-            4:"4 Minutes",
-            5:"5 Minutes",
-            6:"6 Minutes",
-            7:"7 Minutes",
-            8:"8 Minutes",
-            9:"9 Minutes",
-            10:"10 Minutes",
-            11:"11 Minutes",
-            12:"12 Minutes",
-            13:"13 Minutes",
-            14:"14 Minutes",
-            15:"15 Minutes",
-            16:"16 Minutes",
-            17:"17 Minutes",
-            18:"18 Minutes",
-            19:"19 Minutes",
-            20:"20 Minutes",
-            21:"21 Minutes",
-            22:"22 Minutes",
-            23:"23 Minutes",
-            24:"24 Minutes",
-            25:"25 Minutes",
-            26:"26 Minutes",
-            27:"27 Minutes",
-            28:"28 Minutes",
-            29:"29 Minutes",
-            30:"30 Minutes",
-            31:"31 Minutes",
-            32:"32 Minutes",
-            33:"33 Minutes",
-            34:"34 Minutes",
-            35:"35 Minutes",
-            36:"36 Minutes",
-            37:"37 Minutes",
-            38:"38 Minutes",
-            39:"39 Minutes",
-            40:"40 Minutes",
-            41:"41 Minutes",
-            42:"42 Minutes",
-            43:"43 Minutes",
-            44:"44 Minutes",
-            45:"45 Minutes",
-            46:"46 Minutes",
-            47:"47 Minutes",
-            48:"48 Minutes",
-            49:"49 Minutes",
-            50:"50 Minutes",
-            51:"51 Minutes",
-            52:"52 Minutes",
-            53:"53 Minutes",
-            54:"54 Minutes",
-            55:"55 Minutes",
-            56:"56 Minutes",
-            57:"57 Minutes",
-            58:"58 Minutes",
-            59:"59 Minutes"
+            1:"1 Minute", 2:"2 Minutes", 3:"3 Minutes", 4:"4 Minutes", 5:"5 Minutes",
+            6:"6 Minutes", 7:"7 Minutes", 8:"8 Minutes", 9:"9 Minutes", 10:"10 Minutes",
+            11:"11 Minutes", 12:"12 Minutes", 13:"13 Minutes", 14:"14 Minutes", 15:"15 Minutes",
+            16:"16 Minutes", 17:"17 Minutes", 18:"18 Minutes", 19:"19 Minutes", 20:"20 Minutes",
+            21:"21 Minutes", 22:"22 Minutes", 23:"23 Minutes", 24:"24 Minutes", 25:"25 Minutes",
+            26:"26 Minutes", 27:"27 Minutes", 28:"28 Minutes", 29:"29 Minutes", 30:"30 Minutes",
+            31:"31 Minutes", 32:"32 Minutes", 33:"33 Minutes", 34:"34 Minutes", 35:"35 Minutes",
+            36:"36 Minutes", 37:"37 Minutes", 38:"38 Minutes", 39:"39 Minutes", 40:"40 Minutes",
+            41:"41 Minutes", 42:"42 Minutes", 43:"43 Minutes", 44:"44 Minutes", 45:"45 Minutes",
+            46:"46 Minutes", 47:"47 Minutes", 48:"48 Minutes", 49:"49 Minutes", 50:"50 Minutes",
+            51:"51 Minutes", 52:"52 Minutes", 53:"53 Minutes", 54:"54 Minutes", 55:"55 Minutes",
+            56:"56 Minutes", 57:"57 Minutes", 58:"58 Minutes", 59:"59 Minutes"
           ], required: true)
+
           input("overview_refresh_interval", "enum", title: "How often to refresh the production overview data", options: [
             255:"Do NOT update",
-            1:"1 Minute",
-            2:"2 Minutes",
-            3:"3 Minutes",
-            4:"4 Minutes",
-            5:"5 Minutes",
-            6:"6 Minutes",
-            7:"7 Minutes",
-            8:"8 Minutes",
-            9:"9 Minutes",
-            10:"10 Minutes",
-            11:"11 Minutes",
-            12:"12 Minutes",
-            13:"13 Minutes",
-            14:"14 Minutes",
-            15:"15 Minutes",
-            16:"16 Minutes",
-            17:"17 Minutes",
-            18:"18 Minutes",
-            19:"19 Minutes",
-            20:"20 Minutes",
-            21:"21 Minutes",
-            22:"22 Minutes",
-            23:"23 Minutes",
-            24:"24 Minutes",
-            25:"25 Minutes",
-            26:"26 Minutes",
-            27:"27 Minutes",
-            28:"28 Minutes",
-            29:"29 Minutes",
-            30:"30 Minutes",
-            31:"31 Minutes",
-            32:"32 Minutes",
-            33:"33 Minutes",
-            34:"34 Minutes",
-            35:"35 Minutes",
-            36:"36 Minutes",
-            37:"37 Minutes",
-            38:"38 Minutes",
-            39:"39 Minutes",
-            40:"40 Minutes",
-            41:"41 Minutes",
-            42:"42 Minutes",
-            43:"43 Minutes",
-            44:"44 Minutes",
-            45:"45 Minutes",
-            46:"46 Minutes",
-            47:"47 Minutes",
-            48:"48 Minutes",
-            49:"49 Minutes",
-            50:"50 Minutes",
-            51:"51 Minutes",
-            52:"52 Minutes",
-            53:"53 Minutes",
-            54:"54 Minutes",
-            55:"55 Minutes",
-            56:"56 Minutes",
-            57:"57 Minutes",
-            58:"58 Minutes",
-            59:"59 Minutes"
+            1:"1 Minute", 2:"2 Minutes", 3:"3 Minutes", 4:"4 Minutes", 5:"5 Minutes",
+            6:"6 Minutes", 7:"7 Minutes", 8:"8 Minutes", 9:"9 Minutes", 10:"10 Minutes",
+            11:"11 Minutes", 12:"12 Minutes", 13:"13 Minutes", 14:"14 Minutes", 15:"15 Minutes",
+            16:"16 Minutes", 17:"17 Minutes", 18:"18 Minutes", 19:"19 Minutes", 20:"20 Minutes",
+            21:"21 Minutes", 22:"22 Minutes", 23:"23 Minutes", 24:"24 Minutes", 25:"25 Minutes",
+            26:"26 Minutes", 27:"27 Minutes", 28:"28 Minutes", 29:"29 Minutes", 30:"30 Minutes",
+            31:"31 Minutes", 32:"32 Minutes", 33:"33 Minutes", 34:"34 Minutes", 35:"35 Minutes",
+            36:"36 Minutes", 37:"37 Minutes", 38:"38 Minutes", 39:"39 Minutes", 40:"40 Minutes",
+            41:"41 Minutes", 42:"42 Minutes", 43:"43 Minutes", 44:"44 Minutes", 45:"45 Minutes",
+            46:"46 Minutes", 47:"47 Minutes", 48:"48 Minutes", 49:"49 Minutes", 50:"50 Minutes",
+            51:"51 Minutes", 52:"52 Minutes", 53:"53 Minutes", 54:"54 Minutes", 55:"55 Minutes",
+            56:"56 Minutes", 57:"57 Minutes", 58:"58 Minutes", 59:"59 Minutes"
           ], required: true)
+
           input("power_flow_refresh_interval", "enum", title: "How often to refresh power flow data", options: [
             255:"Do NOT update",
-            1:"1 Minute",
-            2:"2 Minutes",
-            3:"3 Minutes",
-            4:"4 Minutes",
-            5:"5 Minutes",
-            6:"6 Minutes",
-            7:"7 Minutes",
-            8:"8 Minutes",
-            9:"9 Minutes",
-            10:"10 Minutes",
-            11:"11 Minutes",
-            12:"12 Minutes",
-            13:"13 Minutes",
-            14:"14 Minutes",
-            15:"15 Minutes",
-            16:"16 Minutes",
-            17:"17 Minutes",
-            18:"18 Minutes",
-            19:"19 Minutes",
-            20:"20 Minutes",
-            21:"21 Minutes",
-            22:"22 Minutes",
-            23:"23 Minutes",
-            24:"24 Minutes",
-            25:"25 Minutes",
-            26:"26 Minutes",
-            27:"27 Minutes",
-            28:"28 Minutes",
-            29:"29 Minutes",
-            30:"30 Minutes",
-            31:"31 Minutes",
-            32:"32 Minutes",
-            33:"33 Minutes",
-            34:"34 Minutes",
-            35:"35 Minutes",
-            36:"36 Minutes",
-            37:"37 Minutes",
-            38:"38 Minutes",
-            39:"39 Minutes",
-            40:"40 Minutes",
-            41:"41 Minutes",
-            42:"42 Minutes",
-            43:"43 Minutes",
-            44:"44 Minutes",
-            45:"45 Minutes",
-            46:"46 Minutes",
-            47:"47 Minutes",
-            48:"48 Minutes",
-            49:"49 Minutes",
-            50:"50 Minutes",
-            51:"51 Minutes",
-            52:"52 Minutes",
-            53:"53 Minutes",
-            54:"54 Minutes",
-            55:"55 Minutes",
-            56:"56 Minutes",
-            57:"57 Minutes",
-            58:"58 Minutes",
-            59:"59 Minutes"
+            1:"1 Minute", 2:"2 Minutes", 3:"3 Minutes", 4:"4 Minutes", 5:"5 Minutes",
+            6:"6 Minutes", 7:"7 Minutes", 8:"8 Minutes", 9:"9 Minutes", 10:"10 Minutes",
+            11:"11 Minutes", 12:"12 Minutes", 13:"13 Minutes", 14:"14 Minutes", 15:"15 Minutes",
+            16:"16 Minutes", 17:"17 Minutes", 18:"18 Minutes", 19:"19 Minutes", 20:"20 Minutes",
+            21:"21 Minutes", 22:"22 Minutes", 23:"23 Minutes", 24:"24 Minutes", 25:"25 Minutes",
+            26:"26 Minutes", 27:"27 Minutes", 28:"28 Minutes", 29:"29 Minutes", 30:"30 Minutes",
+            31:"31 Minutes", 32:"32 Minutes", 33:"33 Minutes", 34:"34 Minutes", 35:"35 Minutes",
+            36:"36 Minutes", 37:"37 Minutes", 38:"38 Minutes", 39:"39 Minutes", 40:"40 Minutes",
+            41:"41 Minutes", 42:"42 Minutes", 43:"43 Minutes", 44:"44 Minutes", 45:"45 Minutes",
+            46:"46 Minutes", 47:"47 Minutes", 48:"48 Minutes", 49:"49 Minutes", 50:"50 Minutes",
+            51:"51 Minutes", 52:"52 Minutes", 53:"53 Minutes", 54:"54 Minutes", 55:"55 Minutes",
+            56:"56 Minutes", 57:"57 Minutes", 58:"58 Minutes", 59:"59 Minutes"
           ], required: true)
+
           input("energy_title", "text", title: "Daily Energy Details Title", description: "Title for energy details tile. Empty value removes title from tile.", required: false)
           input("overview_title", "text", title: "Production Overview Title", description: "Title for solar produtcion overview tile. Empty value removes title from tile.", required: false)
           input("power_flow_title", "text", title: "Power Flow Title", description: "Title for current flow overview(PV, load, and grid). Empty value removes title from tile.", required: false)
@@ -258,16 +120,13 @@ metadata {
 }
 
 def installed() {
-	log.info "Solaredge Monitoring has been installed."
-
+    log.info "Solaredge Monitoring has been installed."
   clearData()
-
   state.version = version()
 }
 
 def uninstalled() {
-	if (debug) log.info "Solaredge Monitoring has been uninstalled."
-
+    if (debug) log.info "Solaredge Monitoring has been uninstalled."
   unschedule(refresh)
   unschedule(queryEnergyEndpoint)
   unschedule(queryOverviewEndpoint)
@@ -275,22 +134,17 @@ def uninstalled() {
 }
 
 def refresh() {
-
   if (debug) log.debug "Solaredge API is being queried."
-
   queryEnergyEndpoint()
   queryOverviewEndpoint()
   querySitePowerFlowEndpoint()
-
   updateTiles()
 }
 
 def updated() {
-
   if (debug) {
       log.debug "Settings updated."
   }
-
   unschedule(refresh)
   unschedule(queryEnergyEndpoint)
   unschedule(queryOverviewEndpoint)
@@ -301,7 +155,6 @@ def updated() {
   if( settings.power_flow_refresh_interval != "255") schedule("0 */${settings.power_flow_refresh_interval} * ? * * *", querySitePowerFlowEndpoint)
 
   updateTiles()
-
   state.version = version()
 }
 
@@ -320,10 +173,8 @@ def getSitePowerFlow() {
   updateTiles()
 }
 
-def clearData()
-{
+def clearData() {
   if (debug) log.debug "Deleting all metrics."
-
   delayBetween([
     sendEvent(name: "feed_in", value: 0),
     sendEvent(name: "self_consumption", value: 0),
@@ -341,15 +192,13 @@ def clearData()
     sendEvent(name: "overview_tile", value: ""),
     sendEvent(name: "power_flow_tile", value: ""),
     sendEvent(name: "lifetime", value: 0)])
-
     updateTiles()
 }
 
 def queryEnergyEndpoint() {
-
   if (debug) log.debug "Gathering energy metrics."
 
-  def today =  timeToday("00:00").format("YYYY-MM-dd")
+  def today = timeToday("00:00").format("YYYY-MM-dd")
 
   def params = [
     uri: "${settings.url}",
@@ -359,7 +208,6 @@ def queryEnergyEndpoint() {
 
   try {
     httpGet(params) { r ->
-
       def meters = r.data.energyDetails.meters
 
       if (debug) {
@@ -402,7 +250,6 @@ def queryEnergyEndpoint() {
     }
   } catch (Exception e) {
     log.error "Exception"
-
     if(e.getStatusCode()) {
       switch(e.getStatusCode()) {
           case 401:
@@ -428,7 +275,6 @@ def queryEnergyEndpoint() {
 }
 
 def queryOverviewEndpoint() {
-
   if (debug) log.debug "Gathering overview metrics."
 
   def params = [
@@ -439,7 +285,6 @@ def queryOverviewEndpoint() {
 
   try {
     httpGet(params) { r ->
-
       if (debug) {
         log.debug "Status: ${r.getStatus()}"
         log.debug "Headers: ${r.getAllHeaders()}"
@@ -447,17 +292,17 @@ def queryOverviewEndpoint() {
         log.debug "Response: ${r.data}"
       }
 
+      // Use Elvis operator ?: 0 to safely handle null values returned by the API
       delayBetween([
-        sendEvent(name: "power", value: r.data.overview.currentPower.power),
-        sendEvent(name: "last_day", value: r.data.overview.lastDayData.energy),
-        sendEvent(name: "last_month", value: r.data.overview.lastMonthData.energy),
-        sendEvent(name: "last_year", value: r.data.overview.lastYearData.energy),
-        sendEvent(name: "lifetime", value: r.data.overview.lifeTimeData.energy)
+        sendEvent(name: "power",      value: r.data.overview.currentPower.power       ?: 0),
+        sendEvent(name: "last_day",   value: r.data.overview.lastDayData.energy       ?: 0),
+        sendEvent(name: "last_month", value: r.data.overview.lastMonthData.energy     ?: 0),
+        sendEvent(name: "last_year",  value: r.data.overview.lastYearData.energy      ?: 0),
+        sendEvent(name: "lifetime",   value: r.data.overview.lifeTimeData.energy      ?: 0)
       ])
     }
   } catch (Exception e) {
       log.error "Exception"
-
       if(e.getStatusCode()) {
         switch(e.getStatusCode()) {
             case 401:
@@ -475,15 +320,14 @@ def queryOverviewEndpoint() {
                 log.error "httpGet message: e.message : ${e.message}"
                 log.error "httpGet full stack: e : ${e}"
                 break
+        }
       }
-    }
   }
 
   updateTiles()
 }
 
 def querySitePowerFlowEndpoint() {
-
   if (debug) log.debug "Gathering site power flow data."
 
   def params = [
@@ -494,7 +338,6 @@ def querySitePowerFlowEndpoint() {
 
   try {
     httpGet(params) { r ->
-
       if (debug) {
         log.debug "Status: ${r.getStatus()}"
         log.debug "Headers: ${r.getAllHeaders()}"
@@ -502,34 +345,40 @@ def querySitePowerFlowEndpoint() {
         log.debug "Response: ${r.data}"
       }
 
+      // FIX: extract power values first, defaulting null to 0 and casting to BigDecimal
+      // to prevent GroovyRuntimeException: Ambiguous method overloading for BigDecimal#minus
+      def pvPower   = (r.data.siteCurrentPowerFlow?.PV?.currentPower   ?: 0) as BigDecimal
+      def loadPower = (r.data.siteCurrentPowerFlow?.LOAD?.currentPower ?: 0) as BigDecimal
+      def gridPower = (r.data.siteCurrentPowerFlow?.GRID?.currentPower ?: 0) as BigDecimal
+      def unit      = r.data.siteCurrentPowerFlow?.unit ?: "kW"
+
       delayBetween([
-        sendEvent(name: "grid_power", value: r.data.siteCurrentPowerFlow.GRID.currentPower + " " + r.data.siteCurrentPowerFlow.unit),
-        sendEvent(name: "load_power", value: r.data.siteCurrentPowerFlow.LOAD.currentPower + " " + r.data.siteCurrentPowerFlow.unit),
-        sendEvent(name: "pv_power", value: r.data.siteCurrentPowerFlow.PV.currentPower + " " + r.data.siteCurrentPowerFlow.unit)
+        sendEvent(name: "grid_power", value: gridPower + " " + unit),
+        sendEvent(name: "load_power", value: loadPower + " " + unit),
+        sendEvent(name: "pv_power",   value: pvPower   + " " + unit)
       ])
 
-      def storagePower = 0;
-      if(r.data.siteCurrentPowerFlow.STORAGE) {
+      // Storage is optional; default storagePower to 0 if not present
+      def storagePower = 0.0 as BigDecimal
+      if (r.data.siteCurrentPowerFlow?.STORAGE) {
+        storagePower = (r.data.siteCurrentPowerFlow.STORAGE.currentPower ?: 0) as BigDecimal
         delayBetween([
-          sendEvent(name: "storage_power", value: r.data.siteCurrentPowerFlow.STORAGE.currentPower + " " + r.data.siteCurrentPowerFlow.unit),
-          sendEvent(name: "storage_charge", value: r.data.siteCurrentPowerFlow.STORAGE.chargeLevel + "%"),
-          sendEvent(name: "battery", value: r.data.siteCurrentPowerFlow.STORAGE.chargeLevel + "%"),
-          sendEvent(name: "storage_status", value: r.data.siteCurrentPowerFlow.STORAGE.status)
-        ]);
-        storagePower = r.data.siteCurrentPowerFlow.STORAGE.currentPower;
-      }      
-      
-        
-      if (r.data.siteCurrentPowerFlow.PV.currentPower + storagePower - r.data.siteCurrentPowerFlow.LOAD.currentPower > 0) {
-          state.flow_direction = "green"
+          sendEvent(name: "storage_power",  value: storagePower + " " + unit),
+          sendEvent(name: "storage_charge", value: (r.data.siteCurrentPowerFlow.STORAGE.chargeLevel ?: 0) + "%"),
+          sendEvent(name: "battery",        value: (r.data.siteCurrentPowerFlow.STORAGE.chargeLevel ?: 0) + "%"),
+          sendEvent(name: "storage_status", value: r.data.siteCurrentPowerFlow.STORAGE.status ?: "Unknown")
+        ])
       }
-      else {
+
+      // All values are now guaranteed BigDecimal, arithmetic is safe
+      if (pvPower + storagePower - loadPower > 0) {
+        state.flow_direction = "green"
+      } else {
         state.flow_direction = "red"
       }
     }
   } catch (Exception e) {
       log.error "Exception" + e
-
       if(e.getStatusCode()) {
         switch(e.getStatusCode()) {
             case 401:
@@ -547,56 +396,48 @@ def querySitePowerFlowEndpoint() {
                 log.error "httpGet message: e.message : ${e.message}"
                 log.error "httpGet full stack: e : ${e}"
                 break
+        }
       }
-    }
   }
 
   updateTiles()
 }
 
 def updateTiles() {
-
   if (debug) log.debug "Updating tile information."
 
   state.last_updated = new Date().format("YYYY-MM-dd HH:mm:ss")
-  
-  def production = device.currentValue("production")
-  def production_status = "red"
 
-  if (device.currentValue("production") < device.currentValue("consumption"))
-  {
-      production_status = "green"
-  }
+  // Null-safe retrieval of device attribute values before comparisons
+  def production  = (device.currentValue("production")  ?: 0) as BigDecimal
+  def consumption = (device.currentValue("consumption") ?: 0) as BigDecimal
 
   def energy_tile = "<div style='font-size: 13px;'><table width='100%'>"
   if (settings.energy_title) energy_tile += "<tr><td style='text-align: center; width: 100%'>" + settings.energy_title + "</td></tr>"
-  energy_tile += "<tr><td style='text-align: left; width: 100%'>" + "Production: <span style='color: green;'>" + formatEnergy(device.currentValue("production")) + "</span></td></tr>"
+  energy_tile += "<tr><td style='text-align: left; width: 100%'>" + "Production: <span style='color: green;'>" + formatEnergy(production) + "</span></td></tr>"
   energy_tile += "<tr><td style='text-align: left; width: 100%'>" + "Consumption: "
 
-  if (device.currentValue("production") < device.currentValue("consumption"))
-  {
+  if (production < consumption) {
     energy_tile += "<span style='color: red;'>"
-  }
-  else
-  {
+  } else {
     energy_tile += "<span style='color: green;'>"
   }
 
-  energy_tile += formatEnergy(device.currentValue("consumption")) + "</span></td></tr>"
-  energy_tile += "<tr><td style='text-align: left; width: 100%'>" + "Self Consumed: <span style='color: blue;'>" + formatEnergy(device.currentValue("self_consumption")) + "</span></td></tr>"
+  energy_tile += formatEnergy(consumption) + "</span></td></tr>"
+  energy_tile += "<tr><td style='text-align: left; width: 100%'>" + "Self Consumed: <span style='color: blue;'>" + formatEnergy((device.currentValue("self_consumption") ?: 0) as BigDecimal) + "</span></td></tr>"
   energy_tile += "<tr><td style='text-align: left; width: 100%'>" + "Import: "
 
-  if (device.currentValue("feed_in") < device.currentValue("purchased"))
-  {
+  def feed_in   = (device.currentValue("feed_in")   ?: 0) as BigDecimal
+  def purchased = (device.currentValue("purchased") ?: 0) as BigDecimal
+
+  if (feed_in < purchased) {
     energy_tile += "<span style='color: red;'>"
-  }
-  else
-  {
+  } else {
     energy_tile += "<span style='color: green;'>"
   }
 
-  energy_tile += formatEnergy(device.currentValue("purchased")) + "</td></tr>"
-  energy_tile += "<tr><td style='text-align: left; width: 100%'>" + "Exported: <span style='color: green;'>" + formatEnergy(device.currentValue("feed_in")) + "</span></td></tr>"
+  energy_tile += formatEnergy(purchased) + "</td></tr>"
+  energy_tile += "<tr><td style='text-align: left; width: 100%'>" + "Exported: <span style='color: green;'>" + formatEnergy(feed_in) + "</span></td></tr>"
   if (settings.display_last_updated == true) energy_tile += "<tr><td style='text-align: center; width: 100%'><br />Last Updated: " + state.last_updated + "</td></tr>"
   energy_tile += "</table></div>"
 
@@ -604,10 +445,10 @@ def updateTiles() {
 
   def overview_tile = "<div style='font-size: 15px;'><table width='100%'>"
   if (settings.overview_title) overview_tile += "<tr><td style='text-align: center; width: 100%'>" + settings.overview_title + "</td></tr>"
-  overview_tile += "<tr><td style='text-align: left; width: 100%'>" + "Today: <span style='color: green;'>" + formatEnergy(device.currentValue("last_day")) + "</span></td></tr>"
-  overview_tile += "<tr><td style='text-align: left; width: 100%'>" + "Monthly <span style='color: green;'>" + formatEnergy(device.currentValue("last_month")) + "</span></td></tr>"
-  overview_tile += "<tr><td style='text-align: left; width: 100%'>" + "Yearly <span style='color: green;'>" + formatEnergy(device.currentValue("last_year")) + "</span></td></tr>"
-  overview_tile += "<tr><td style='text-align: left; width: 100%'>" + "Lifetime <span style='color: green;'>" + formatEnergy(device.currentValue("lifetime")) + "</span></td></tr>"
+  overview_tile += "<tr><td style='text-align: left; width: 100%'>" + "Today: <span style='color: green;'>"    + formatEnergy((device.currentValue("last_day")   ?: 0) as BigDecimal) + "</span></td></tr>"
+  overview_tile += "<tr><td style='text-align: left; width: 100%'>" + "Monthly <span style='color: green;'>"   + formatEnergy((device.currentValue("last_month") ?: 0) as BigDecimal) + "</span></td></tr>"
+  overview_tile += "<tr><td style='text-align: left; width: 100%'>" + "Yearly <span style='color: green;'>"    + formatEnergy((device.currentValue("last_year")  ?: 0) as BigDecimal) + "</span></td></tr>"
+  overview_tile += "<tr><td style='text-align: left; width: 100%'>" + "Lifetime <span style='color: green;'>"  + formatEnergy((device.currentValue("lifetime")   ?: 0) as BigDecimal) + "</span></td></tr>"
   if (settings.display_last_updated == true) overview_tile += "<tr><td style='text-align: center; width: 100%'><br />Last Updated: " + state.last_updated + "</td></tr>"
   overview_tile += "</table></div>"
 
@@ -615,20 +456,21 @@ def updateTiles() {
 
   def power_flow_tile = "<div style='font-size: 15px;'><table width='100%'>"
   if (settings.power_flow_title) power_flow_tile += "<tr><td style='text-align: center; width: 100%'>" + settings.power_flow_title + "</td></tr>"
-  if (device.currentValue("pv_power")) power_flow_tile += "<tr><td style='text-align: left; width: 100%'>" + "Solar: <span style='color: green;'>" + device.currentValue("pv_power") + "</span></td></tr>"
-  if (device.currentValue("grid_power")) power_flow_tile += "<tr><td style='text-align: left; width: 100%'>" + "Grid: <span style='color: " + state.flow_direction + ";'>" + device.currentValue("grid_power") + "</span></td></tr>"
-  if (device.currentValue("storage_power")) power_flow_tile += "<tr><td style='text-align: left; width: 100%'>" + "Battery: <span style='color: green;'>" + device.currentValue("storage_power") + "</span></td></tr>"
-  if (device.currentValue("load_power")) power_flow_tile += "<tr><td style='text-align: left; width: 100%'>" + "Usage: <span style='color: red;'>" + device.currentValue("load_power") + "</span></td></tr>"
+  if (device.currentValue("pv_power"))      power_flow_tile += "<tr><td style='text-align: left; width: 100%'>" + "Solar: <span style='color: green;'>"                                   + device.currentValue("pv_power")      + "</span></td></tr>"
+  if (device.currentValue("grid_power"))    power_flow_tile += "<tr><td style='text-align: left; width: 100%'>" + "Grid: <span style='color: " + (state.flow_direction ?: "red") + ";'>" + device.currentValue("grid_power")    + "</span></td></tr>"
+  if (device.currentValue("storage_power")) power_flow_tile += "<tr><td style='text-align: left; width: 100%'>" + "Battery: <span style='color: green;'>"                                 + device.currentValue("storage_power") + "</span></td></tr>"
+  if (device.currentValue("load_power"))    power_flow_tile += "<tr><td style='text-align: left; width: 100%'>" + "Usage: <span style='color: red;'>"                                     + device.currentValue("load_power")    + "</span></td></tr>"
   if (settings.display_last_updated == true) power_flow_tile += "<tr><td style='text-align: center; width: 100%'><br />Last Updated: " + state.last_updated + "</td></tr>"
   power_flow_tile += "</table></div>"
 
   sendEvent(name: "power_flow_tile", value: power_flow_tile)
 }
 
-private formatEnergy(energy)
-{
-  if (energy < 1000) return energy + " Wh"
-  if (energy < 1000000) return Math.round((double) (energy/1000) * 100) / 100 + " kWh"
-  
-  return Math.round((double) (energy/1000/1000) * 100) / 100  + " MWh"
+private formatEnergy(energy) {
+  // Guard against null to prevent NullPointerException
+  if (energy == null) return "0 Wh"
+  def e = energy as BigDecimal
+  if (e < 1000)    return e + " Wh"
+  if (e < 1000000) return Math.round((double)(e / 1000) * 100) / 100 + " kWh"
+  return Math.round((double)(e / 1000 / 1000) * 100) / 100 + " MWh"
 }

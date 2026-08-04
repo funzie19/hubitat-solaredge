@@ -1,5 +1,7 @@
 # Hubitat-solaredge
 
+* 1.2.1 - Bugfix: Ambiguous BigDecimal#minus GroovyRuntimeException when API returns null for power values
+
 * 1.2.0 - Added Battery Storage
 
 * 1.1.2 - Bug fixes for updated timestamp and tile refresh.
